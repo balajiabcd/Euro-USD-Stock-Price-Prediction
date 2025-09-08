@@ -1,0 +1,78 @@
+# -------------------------
+# Python & Jupyter
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.h5
+*.hdf5
+*.db
+*.sqlite3
+*.egg-info/
+*.egg
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+.DS_Store
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+env_sound_classification/
+*.log
+
+# -------------------------
+# Data & Models
+# -------------------------
+data/
+datasets/
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.parquet
+*.feather
+*.json
+*.zip
+*.gz
+*.tar
+*.rar
+models/
+*.joblib
+*.sav
+
+# -------------------------
+# Results / Outputs
+# -------------------------
+results/
+outputs/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.svg
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -------------------------
+# OS generated
+# -------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -------------------------
+# Other
+# -------------------------
+*.bak
+*.swp
+*.tmp
