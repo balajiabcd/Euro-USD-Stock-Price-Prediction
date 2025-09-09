@@ -1,31 +1,20 @@
 import pandas as pd
 
+def refine_data(df: pd.DataFrame):
+    daily_data = df.groupby("date").agg(
+        open   = ("Open", "first"),   # first price of the day
+        close  = ("Close", "last"),   # last price of the day
+        high   = ("High", "max"),     # max price of the day
+        low    = ("Low", "min"),      # min price of the day
+        volume = ("Volume", "sum")    # sum of volume
+    ).reset_index()                   # keep 'date' as a column
+    daily_data["ave"] = (daily["high"] + daily["low"]) / 2    # Add average of high & low
+    return daily_data
 
-def build_data(df: pd.DataFrame, target_col: str):
-    date, volume, high, low, ave  = [],[],[],[],[] 
-    d, h, l, vol = df.date[0], 0, 0, 0
-    for i in range(len(data)+1):
 
-        if i == len(data) or d != data.date[i]:
-            date.append(d)
-            volume.append(vol)
-            high.append(h)
-            low.append(l)
-            ave.append((h+l)/2)
-            if i != len(data):
-                d = data.date[i]
-                h, l, vol = data.High[i], data.Low[i], data.Volume[i]
-        else:
-            vol += data.Volume[i]
-            if h < data.High[i]:
-                h = data.High[i]
-            if l < data.Low[i]:
-                l = data.Low[i]
-
-    new_data = pd.DataFrame({ 
-                            'date' : date,
-                            'volume' : volume,
-                            'high' : high,
-                            'low': low,
-                            'ave' : ave })
-    return new_data
+def build_data(df, TARGET_COL, n):
+    values = df[target_col].values
+    data = [values[i-n:i+1] for i in range(n, len(values))]
+    cols = [f"day_{i}" for i in range(n)] + ["next_day"]
+    df = pd.DataFrame(data, columns=cols)
+    return df

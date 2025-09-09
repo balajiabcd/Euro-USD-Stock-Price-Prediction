@@ -7,9 +7,10 @@ PLOTS_DIR  = PROJECT_ROOT / "plots"
 
 CSV_PATH  = DATA_DIR / "Entire.csv"
 DATE_COL  = "Date"
-TARGET_COL = "Close"
+TARGET_COL = "ave"
 
 LOOKBACK = 5
+LOOKBACK_days = 15
 PREDICT_HORIZON = 1
 TEST_DAYS = 365
 VAL_DAYS  = 180
