@@ -15,14 +15,20 @@ __pycache__/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 .DS_Store
+
+
+# -------------------------
+# Virtual Environments
+# -------------------------
 .env
-.venv
+.venv 
 env/
 venv/
 ENV/
 env.bak/
-env_sound_classification/
-*.log
+env_euro_usd_stock/   # your project-specific environment
+
+
 
 # -------------------------
 # Data & Models
