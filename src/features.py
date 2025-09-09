@@ -1,16 +1,31 @@
 import pandas as pd
 
-def add_technical_indicators(df: pd.DataFrame, target_col: str) -> pd.DataFrame:
-    out = df.copy()
-    if target_col not in out.columns:
-        return out
-    out["SMA_5"]  = out[price_col].rolling(5, min_periods=1).mean()
-    out["SMA_10"] = out[price_col].rolling(10, min_periods=1).mean()
-    out["EMA_5"]  = out[price_col].ewm(span=5, adjust=False).mean()
-    out["EMA_10"] = out[price_col].ewm(span=10, adjust=False).mean()
-    out["RET_1"]  = out[price_col].pct_change(1)
-    out["DIFF_1"] = out[price_col].diff(1)
-    out["LAG_1"]  = out[price_col].shift(1)
-    out["LAG_2"]  = out[price_col].shift(2)
-    out = out.dropna().reset_index(drop=True)
-    return out
+
+def build_data(df: pd.DataFrame, target_col: str):
+    date, volume, high, low, ave  = [],[],[],[],[] 
+    d, h, l, vol = df.date[0], 0, 0, 0
+    for i in range(len(data)+1):
+
+        if i == len(data) or d != data.date[i]:
+            date.append(d)
+            volume.append(vol)
+            high.append(h)
+            low.append(l)
+            ave.append((h+l)/2)
+            if i != len(data):
+                d = data.date[i]
+                h, l, vol = data.High[i], data.Low[i], data.Volume[i]
+        else:
+            vol += data.Volume[i]
+            if h < data.High[i]:
+                h = data.High[i]
+            if l < data.Low[i]:
+                l = data.Low[i]
+
+    new_data = pd.DataFrame({ 
+                            'date' : date,
+                            'volume' : volume,
+                            'high' : high,
+                            'low': low,
+                            'ave' : ave })
+    return new_data

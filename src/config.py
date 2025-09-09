@@ -3,11 +3,11 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR  = PROJECT_ROOT / "data"
 MODELS_DIR = PROJECT_ROOT / "models"
-PLOTS_DIR  = PROJECT_ROOT / "static"
+PLOTS_DIR  = PROJECT_ROOT / "plots"
 
-CSV_PATH  = DATA_DIR / "Entire.csv"   # put your CSV here
-DATE_COL  = "Date"                    # adjust if different
-TARGET_COL = "Close"                  # adjust if different
+CSV_PATH  = DATA_DIR / "Entire.csv"
+DATE_COL  = "Date"
+TARGET_COL = "Close"
 
 LOOKBACK = 5
 PREDICT_HORIZON = 1

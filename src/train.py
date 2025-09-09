@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from .config import (CSV_PATH, DATE_COL, TARGET_COL, LOOKBACK, EPOCHS, BATCH_SIZE,
                      MODELS_DIR, PLOTS_DIR)
 from .data_io import load_timeseries
-from .features import add_technical_indicators
+from .features import build_data
 from .split import temporal_split
 from .preprocess import fit_scaler, transform, sequences, save_scaler
 from .models import build_model
@@ -23,28 +23,22 @@ def main():
     os.makedirs(PLOTS_DIR, exist_ok=True)
 
     df = load_timeseries(str(CSV_PATH))
-    df = add_technical_indicators(df, TARGET_COL)
+    df = refine_data(df, TARGET_COL)    # return data with one row per date
+    df = build_data(df, TARGET_COL)     # build data with number of dates of past
 
-    train_df, val_df, test_df = temporal_split(df)
-    feature_cols = df.select_dtypes(include=["number"]).columns.tolist()
-    assert TARGET_COL in feature_cols, f"TARGET_COL '{TARGET_COL}' must be numeric"
-
-    scaler = fit_scaler(train_df, feature_cols)
-    Xtr = transform(train_df, feature_cols, scaler); ytr = train_df[TARGET_COL].values.reshape(-1,1)
-    Xv  = transform(val_df, feature_cols, scaler);   yv  = val_df[TARGET_COL].values.reshape(-1,1)
-
-    X_tr, y_tr = sequences(Xtr, ytr, LOOKBACK)
-    X_va, y_va = sequences(Xv,  yv,  LOOKBACK)
+    train_df, val_df, test_df = temporal_split(df)      # split data into train, test, validation
+                                                # separate X with Y
+                                                # scaling the data
 
     model = build_model(input_shape=(X_tr.shape[1], X_tr.shape[2]))
     history = model.fit(X_tr, y_tr, validation_data=(X_va, y_va) if len(X_va)>0 else None,
-                        epochs=40, batch_size=32, verbose=2)
+                        epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=2)
 
     model_path = os.path.join(MODELS_DIR, "lstm_model.h5")
     model.save(model_path)
     save_scaler(scaler, os.path.join(MODELS_DIR, "scaler.pkl"))
     with open(os.path.join(MODELS_DIR, "training_config.json"), "w", encoding="utf-8") as f:
-        json.dump({"feature_cols": feature_cols, "LOOKBACK": 5}, f, indent=2)
+        json.dump({"feature_cols": feature_cols, "LOOKBACK": LOOKBACK}, f, indent=2)
 
     plot_history(history, os.path.join(PLOTS_DIR, "training_history.png"))
 
