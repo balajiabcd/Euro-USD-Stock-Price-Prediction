@@ -53,13 +53,7 @@ models/
 # -------------------------
 # Results / Outputs
 # -------------------------
-results/
-outputs/
-*.png
-*.jpg
-*.jpeg
-*.pdf
-*.svg
+
 
 # -------------------------
 # IDE / Editor
