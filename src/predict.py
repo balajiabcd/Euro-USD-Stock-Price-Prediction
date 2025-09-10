@@ -1,44 +1,21 @@
+# src/predict.py
 import os, json
-import numpy as np
-import pandas as pd
-from tensorflow.keras.models import load_model
-from .config import CSV_PATH, TARGET_COL, LOOKBACK, MODELS_DIR, DATE_COL
-from .data_io import load_timeseries
-from .features import add_technical_indicators
-from .preprocess import load_scaler, transform
+import numpy as np, pandas as pd, joblib
+from keras.models import load_model
+from .config import MODELS_DIR
 
-def predict_next(n_steps: int = 1):
-    df = load_timeseries(str(CSV_PATH))
-    df = add_technical_indicators(df, TARGET_COL)
+def predict_rate(x,y):
+    model = load_model(os.path.join(MODELS_DIR, "best_model.keras"))
+    
+    y_pred = model.predict(x)
+    for i in range(len(x)):
+        y1, y2 = round(y_test.iloc[-i],4), round(float(y_pred[i]),4)
+        print(f"original is {y1}, prediciton is {y2}")
 
-    cfg = json.load(open(os.path.join(MODELS_DIR, "training_config.json")))
-    feature_cols = cfg["feature_cols"]
-    scaler = load_scaler(os.path.join(MODELS_DIR, "scaler.pkl"))
-
-    X = transform(df, feature_cols, scaler)
-    model = load_model(os.path.join(MODELS_DIR, "lstm_model.h5"))
-
-    window = X[-LOOKBACK:]
-    preds = []
-    for _ in range(n_steps):
-        y = float(model.predict(window[np.newaxis, ...], verbose=0)[0,0])
-        preds.append(y)
-        try:
-            idx = feature_cols.index(TARGET_COL)
-            next_row = window[-1].copy()
-            next_row[idx] = y
-        except ValueError:
-            next_row = window[-1].copy()
-        window = np.vstack([window[1:], next_row])
-
-    if DATE_COL in df.columns:
-        last_date = pd.to_datetime(df[DATE_COL].iloc[-1])
-        dates = [str(last_date + pd.Timedelta(days=i+1)) for i in range(n_steps)]
-    else:
-        dates = list(range(len(df), len(df)+n_steps))
-
-    return list(zip(dates, preds))
 
 if __name__ == "__main__":
-    for d, y in predict_next(5):
-        print(d, y)
+    X_test_df = joblib.load(os.path.join(MODELS_DIR, "X_test_df.pkl"))
+    y_test = joblib.load(os.path.join(MODELS_DIR, "y_test.pkl"))
+    x = X_test_df.tail(5)
+    y = y_test.iloc[-5:] 
+    predict_rate(x,y)
