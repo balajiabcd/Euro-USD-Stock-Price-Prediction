@@ -9,7 +9,7 @@ CSV_PATH  = DATA_DIR / "Entire.csv"
 DATE_COL  = "Date"
 TARGET_COL = "ave"
 
-LOOKBACK_days = 15
+LOOKBACK_days = 45
 
 EPOCHS = 20
 BATCH_SIZE = 32

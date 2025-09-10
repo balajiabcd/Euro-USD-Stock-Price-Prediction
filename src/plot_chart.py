@@ -6,6 +6,7 @@ from .config import MODELS_DIR, PROJECT_ROOT
 
 # save plots under static/plots/
 PLOT_DIR = os.path.join(PROJECT_ROOT, "static", "plots")
+os.makedirs(PLOT_DIR, exist_ok=True)
 
 
 def load_artifact(name):

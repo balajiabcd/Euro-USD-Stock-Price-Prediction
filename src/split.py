@@ -1,5 +1,4 @@
 import pandas as pd
-from .config import DATE_COL, TEST_DAYS, VAL_DAYS
 
 def data_split(df: pd.DataFrame, train_size=0.7, val_size=0.15):
     n_train = int(len(df) * train_size)

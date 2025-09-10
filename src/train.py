@@ -28,6 +28,12 @@ def main():
     X_test_df  = pd.DataFrame(transform(X_test_df,  X_test_df.columns,  scaler),
                                         columns=X_test_df.columns,  index=X_test_df.index)
 
+
+    X_train = X_train_df.to_numpy().reshape(-1, LOOKBACK_days, 1)
+    X_val   = X_val_df.to_numpy().reshape(-1, LOOKBACK_days, 1)
+    X_test  = X_test_df.to_numpy().reshape(-1, LOOKBACK_days, 1)
+
+    
     data_dict = {   "X_train_df": X_train_df,   "y_train": y_train,
                     "X_val_df": X_val_df,       "y_val": y_val,
                     "X_test_df": X_test_df,     "y_test": y_test,   "scaler": scaler }
@@ -35,7 +41,7 @@ def main():
     for key, value in data_dict.items():
         save_object(key, value, MODELS_DIR)
 
-    models = build_models(X_train_df, y_train, X_val_df, y_val, EPOCHS )       # training models
+    models = build_models(X_train, y_train, X_val, y_val, EPOCHS)       # training models
     for key, value in models.items():
         value.save(os.path.join(MODELS_DIR, f"{key}.keras"))                        # not pkl file, using kras library save to save neural network models
     model = models["best_model"]

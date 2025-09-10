@@ -7,7 +7,7 @@ import joblib
 from keras.models import load_model
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from .config import MODELS_DIR
+from .config import MODELS_DIR, LOOKBACK_days
 
 
 
@@ -29,7 +29,11 @@ def evaluate(save_metrics: bool = True, save_preds: bool = True, verbose: bool =
     X_test_df = load_pkl("X_test_df")
     y_test    = load_pkl("y_test")
     model = load_best_model()
-    y_pred = model.predict(X_test_df)
+
+    X_test = X_test_df.values.reshape(-1, LOOKBACK_days, 1)
+    y_true = np.asarray(getattr(y_test, "values", y_test)).ravel()
+    y_pred = model.predict(X_test).ravel()
+
 
     mae  = float(mean_absolute_error(y_true, y_pred))
     rmse = float(np.sqrt(mean_squared_error(y_true, y_pred)))
@@ -41,7 +45,10 @@ def evaluate(save_metrics: bool = True, save_preds: bool = True, verbose: bool =
     with open(os.path.join(MODELS_DIR, "metrics.json"), "w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2)
 
-    joblib.dump(y_pred, os.path.join(MODELS_DIR, "y_pred_test.pkl"))
+    if save_preds:
+        joblib.dump(y_pred, os.path.join(MODELS_DIR, "y_pred_test.pkl"))
+        joblib.dump(y_true, os.path.join(MODELS_DIR, "y_true_test.pkl"))
+        
     return metrics, y_true, y_pred
 
 if __name__ == "__main__":
