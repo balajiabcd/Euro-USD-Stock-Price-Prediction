@@ -50,9 +50,11 @@ models/
 *.joblib
 *.sav
 
-# -------------------------
-# Results / Outputs
-# -------------------------
+# Ignore virtual environments
+euro_usd_env/
+env*/
+.venv/
+venv/
 
 
 # -------------------------
