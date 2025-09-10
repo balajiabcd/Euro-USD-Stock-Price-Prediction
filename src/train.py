@@ -2,14 +2,15 @@ import os, json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from .config import (CSV_PATH, DATE_COL, TARGET_COL, LOOKBACK_days, LOOKBACK, EPOCHS, BATCH_SIZE,
-                     MODELS_DIR, PLOTS_DIR)
+from .config import (CSV_PATH, TARGET_COL, LOOKBACK_days, EPOCHS, MODELS_DIR, PLOTS_DIR)
 from .data_io import load_data
 from .features import build_data, refine_data
 from .split import data_split
-from .preprocess import fit_scaler, transform, sequences, save_scaler
-from .models import build_model
+from .preprocess import save_object, make_fit_scaler, transform
+from .models import build_models
 
+
+ 
 def main():
     os.makedirs(MODELS_DIR, exist_ok=True)
     os.makedirs(PLOTS_DIR, exist_ok=True)
@@ -18,16 +19,29 @@ def main():
     refined_df = refine_data(df)                                 # return data with one row per day
     df = build_data(refined_df, TARGET_COL, LOOKBACK_days)       # build data with n number of dates of past
 
-    X_train_df, y_train,  X_val_df,  y_val, X_test_df, y_test = data_split(df)      # split data into train, test, validation
-    X_train_df, X_val_df, X_test_df, scalar = apply_scaling(train_df, val_df, test_df)  # scaling the X data
-    save_model("scalar", scalar, MODELS_DIR)
+    X_train_df, y_train,  X_val_df,  y_val, X_test_df, y_test = data_split(df)          # split data into train, test, validation
+    
+    scaler = make_fit_scaler(X_train_df, X_train_df.columns)
+    X_train_df = pd.DataFrame(transform(X_train_df, X_train_df.columns, scaler),
+                                        columns=X_train_df.columns, index=X_train_df.index)
+    X_val_df   = pd.DataFrame(transform(X_val_df,   X_val_df.columns,   scaler),
+                                        columns=X_val_df.columns,   index=X_val_df.index)
+    X_test_df  = pd.DataFrame(transform(X_test_df,  X_test_df.columns,  scaler),
+                                        columns=X_test_df.columns,  index=X_test_df.index)
 
-    models = build_model(X_train,y_train, X_val, y_val)     # training the models
-    for key in models:
-        save_model(key, model[key], MODELS_DIR)             #   make a pkl file with the trained model
+    data_dict = {   "X_train_df": X_train_df,   "y_train": y_train,
+                    "X_val_df": X_val_df,       "y_val": y_val,
+                    "X_test_df": X_test_df,     "y_test": y_test,   "scaler": scaler }
+
+    for key, value in data_dict.items():
+        save_object(key, value, MODELS_DIR)
+
+    models = build_models(X_train_df, y_train, X_val_df, y_val, EPOCHS )       # training models
+    for key, value in models.items():
+        value.save(os.path.join(MODELS_DIR, f"{key}.keras"))                        # not pkl file, using kras library save to save neural network models
     model = models["best_model"]
 
-    make_plots(model, X_train_df, y_train,  X_val_df,  y_val, X_test_df, y_test)
+
 
 if __name__ == "__main__":
     main()
